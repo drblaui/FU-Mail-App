@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/mobile_navigation"
+	app:startDestination="@+id/nav_empty">
+	<fragment
+		android:id="@+id/nav_empty"
+		android:name="me.drblau.fumailapp.ui.empty.EmptyFragment"
+		android:label="@string/please_login"
+		tools:layout="fragment_empty">
+	</fragment>
+</navigation>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="navigation_drawer_open">Navigationsschieber öffnen</string>
+	<string name="navigation_drawer_close">Navigationsschieber öffnen</string>
+	<string name="nav_header_desc">Navigationskopf</string>
+	<string name="action_settings">Einstellungen</string>
+	<string name="menu_inbox">Posteingang</string>
+	<string name="menu_trash">Papierkorb</string>
+	<string name="menu_sent">Gesendet</string>
+	<string name="menu_drafts">Entwürfe</string>
+	<string name="menu_unread">Nicht gelesen</string>
+	<string name="settings_icon_desc">Ein kleines Zahnrad</string>
+	<string name="login">Einloggen</string>
+	<string name="please_login">Bitte logge dich ein</string>
+	<string name="password_hint">Passwort</string>
+	<string name="email_hint">max.muster</string>
+	<string name="name_hint">Max Mustermann</string>
+	<string name="email_label">Deine ZeDat E-Mail:</string>
+	<string name="password_label">Dein ZeDat Passwort</string>
+	<string name="name_label">Dein bevorzugter Name:</string>
+	<string name="signin">Einloggen</string>
+	<string name="cancel">Abbrechen</string>
+	<string name="login_needed">Du musst eingeloggt sein um diese App zu benutzen</string>
+	<string name="login_checkbox">Anmeldedaten speichern</string>
+	<string name="general">Allgemeines</string>
+	<string name="loggedInSummary">Login Daten speichern</string>
+	<string name="logout">Ausloggen</string>
+	<string name="logout_summary">Von der App abmelden</string>
+	<string name="encryptor">En- und Decryptor</string>
+	<string name="tap_to_view">Zum öffnen tippen</string>
+	<string name="loggedIn">Angemeldet bleiben</string>
+	<string name="nav_header_title">Beispiel Nutzer</string>
+	<string name="nav_header_subtitle">beisplNu19@zedat.fu-berlin.de</string>
+</resources>

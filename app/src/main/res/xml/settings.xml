@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+	<PreferenceCategory android:title="@string/general">
+		<CheckBoxPreference
+			android:title=""
+			android:defaultValue="true"
+			android:key="keepLoggedIn"
+			android:summary="@string/loggedInSummary" />
+		<Preference
+			android:title="@string/logout"
+			android:key="logoutButton"
+			android:summary="@string/logout_summary"/>
+	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/credits">
+		<Preference
+			android:title="@string/fu_logo"
+			android:summary="@string/tap_to_view">
+			<intent
+				android:action="android.intent.action.VIEW"
+				android:data="@string/url_fu_logo" />
+		</Preference>
+		<Preference
+			android:title="@string/javamail"
+			android:summary="@string/tap_to_view">
+			<intent
+				android:action="android.intent.action.VIEW"
+				android:data="@string/url_javamail" />
+		</Preference>
+
+		<Preference
+			android:title="@string/encryptor"
+			android:summary="@string/tap_to_view">
+			<intent
+				android:action="android.intent.action.VIEW"
+				android:data="@string/url_en_decryptor" />
+		</Preference>
+	</PreferenceCategory>
+</PreferenceScreen>

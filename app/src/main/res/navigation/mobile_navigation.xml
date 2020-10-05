@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/mobile_navigation"
+	app:startDestination="@+id/nav_unread">
+
+	<fragment
+		android:id="@+id/nav_unread"
+		android:name="me.drblau.fumailapp.ui.unread.UnreadFragment"
+		android:label="@string/menu_unread"
+		tools:layout="@layout/fragment_unread">
+	</fragment>
+
+	<fragment
+		android:id="@+id/nav_inbox"
+		android:name="me.drblau.fumailapp.ui.inbox.InboxFragment"
+		android:label="@string/menu_inbox"
+		tools:layout="@layout/fragment_inbox" />
+
+	<fragment
+		android:id="@+id/nav_spam"
+		android:name="me.drblau.fumailapp.ui.spam.SpamFragment"
+		android:label="@string/menu_spam"
+		tools:layout="@layout/fragment_spam" />
+
+	<fragment
+		android:id="@+id/nav_trash"
+		android:name="me.drblau.fumailapp.ui.trash.TrashFragment"
+		android:label="@string/menu_trash"
+		tools:layout="@layout/fragment_trash" />
+	<fragment
+		android:id="@+id/nav_sent"
+		android:name="me.drblau.fumailapp.ui.sent.SentFragment"
+		android:label="@string/menu_sent"
+		tools:layout="@layout/fragment_sent" />
+	<fragment
+		android:id="@+id/nav_drafts"
+		android:name="me.drblau.fumailapp.ui.drafts.DraftsFragment"
+		android:label="@string/menu_drafts"
+		tools:layout="@layout/fragment_drafts" />
+</navigation>
