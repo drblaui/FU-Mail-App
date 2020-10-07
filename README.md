@@ -35,7 +35,7 @@ Use your University Mail for work on the FU? Add a Signature so people know how 
 Mails seem to decide to be sent at random
 
 ## Release Notes
-### INDEV 0.0.1
+### INDEV 0.4.0
 - UI added
 - Login added
 - Setting added
