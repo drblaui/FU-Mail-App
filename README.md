@@ -41,4 +41,5 @@ Mails may be marked as Spam
 ### INDEV 0.4.0
 - UI added
 - Login added
-- Setting added
+- Settings added
+- Mail sending added
