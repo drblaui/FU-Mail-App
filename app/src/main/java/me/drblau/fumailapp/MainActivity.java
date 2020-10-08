@@ -2,7 +2,7 @@
  * This implements the ZeDat Unix Webmail as an App
  *
  * @author Alexander Rudolph
- * @version INDEV 0.0.1
+ * @version INDEV 0.6.0
  * @since 2020-09-24
  */
 
@@ -12,8 +12,11 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.MailTo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -42,6 +45,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
+import me.drblau.fumailapp.ui.create.MailCreatorActivity;
 import me.drblau.fumailapp.ui.login.LoginDialogFragment;
 import me.drblau.fumailapp.ui.settings.SettingsActivity;
 import me.drblau.fumailapp.util.mail.MailHandlerSMTP;
@@ -108,19 +112,16 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
         //Handle what to show
         AppBarConfiguration.Builder mAppBarConfigurationBuilder;
         if(isLoggedIn) {
-            //Init Mail
-
-            handler = new MailHandlerSMTP(settings.getString(PREFS_MAIL, mailDefault), decrypt(settings.getString(PREFS_PASSWORD, passDefault)), settings.getString(PREFS_USERNAME, usernameDefault));
+            checkDeepLink();
             setContentView(R.layout.activity_main);
-            //handler.sendMessage("example@example.com", "Dies ist ein Test", "Test Java");
 
-            //TODO
-            FloatingActionButton fab = findViewById(R.id.fab);
+            //Allow writing mails
+            FloatingActionButton fab = findViewById(R.id.write_mail);
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
+                    Intent write = new Intent(getApplicationContext(), MailCreatorActivity.class);
+                    startActivity(write);
                 }
             });
 
@@ -129,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
             mAppBarConfigurationBuilder = new AppBarConfiguration.Builder(R.id.nav_unread, R.id.nav_inbox, R.id.nav_spam, R.id.nav_trash, R.id.nav_sent, R.id.nav_drafts);
 
             //This may warn about duplicates, but it's actually supposed to be like that
-            NavigationView navView = (NavigationView) findViewById(R.id.nav_view);
+            NavigationView navView = findViewById(R.id.nav_view);
             View header = navView.getHeaderView(0);
 
             //Change Header Text accordingly
@@ -198,6 +199,7 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
         String name = nam.getText().toString();
         String encPass = encrypt(password);
         String ivString = Base64.encodeToString(encryptor.getIv(), Base64.DEFAULT);
+        //TODO: Well, this
         boolean keepLogin = check.isChecked();
 
         SharedPreferences.Editor editor = settings.edit();
@@ -247,12 +249,32 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
         try {
             assert decryptor != null;
             byte[] txt = Base64.decode(text, Base64.DEFAULT);
-            System.out.println(decryptor.decryptData(ALIAS, txt, iv));
             return decryptor.decryptData(ALIAS, txt, iv);
         }
         catch (Exception e) {
             e.printStackTrace();
         }
         return "";
+    }
+
+    private void checkDeepLink(){
+        if (getIntent() != null && getIntent().getData() != null) {
+            Uri data = getIntent().getData();
+            String scheme = data.getScheme();
+            MailTo mail = MailTo.parse(data.toString());
+            String receiver = mail.getTo();
+            String subject = mail.getSubject();
+            String body = mail.getBody();
+            Log.d("FU-Mail-App","Created App instance over Scheme: " + scheme);
+            Intent intent = new Intent(this,MailCreatorActivity.class);
+            intent.putExtra("receiver", receiver);
+            if(subject != null) {
+                intent.putExtra("subject", subject);
+            }
+            if(body != null) {
+                intent.putExtra("body", body);
+            }
+            startActivity(intent);
+        }
     }
 }

@@ -34,5 +34,13 @@
 				android:action="android.intent.action.VIEW"
 				android:data="@string/url_en_decryptor" />
 		</Preference>
+
+		<Preference
+			android:title="@string/icons"
+			android:summary="@string/tap_to_view">
+			<intent
+				android:action="android.intent.action.VIEW"
+				android:data="@string/url_icons" />
+		</Preference>
 	</PreferenceCategory>
 </PreferenceScreen>

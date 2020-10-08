@@ -1,12 +1,29 @@
 package me.drblau.fumailapp.util.mail;
 
 
+import android.net.Uri;
+
+import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Properties;
 
-import javax.mail.*;
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
+import javax.mail.Address;
+import javax.mail.BodyPart;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
 public class MailHandlerSMTP {
     private final String email;
@@ -39,18 +56,64 @@ public class MailHandlerSMTP {
         });
     }
 
-    public boolean sendMessage(String receiver, String text, String subject) {
+    public boolean sendMessage(ArrayList<String> receivers, String subject, String text) {
         try {
             //Generate Message and give it to MailSender, since Sending should be Async
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(email, username));
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(receiver));
+            Address[] to = new Address[receivers.size()];
+            int counter = 0;
+
+            for(String receiver : receivers) {
+                to[counter] = new InternetAddress(receiver);
+                counter++;
+            }
+            message.setRecipients(Message.RecipientType.TO, to);
             message.setSubject(subject);
-            message.setText(text);
+            //Allows HTML Formatting
+            message.setContent(text, "text/html");
 
            MailSender sm = new MailSender(message);
            sm.execute();
+            return true;
+        }
+        catch (MessagingException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
+    public boolean sendMessage(ArrayList<String> receivers, String subject, String text, String filepath) {
+        try {
+            //Generate Message and give it to MailSender, since Sending should be Async
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(email, username));
+            Address[] to = new Address[receivers.size()];
+            int counter = 0;
+
+            for(String receiver : receivers) {
+                to[counter] = new InternetAddress(receiver);
+                counter++;
+            }
+            message.setRecipients(Message.RecipientType.TO, to);
+            message.setSubject(subject);
+            BodyPart messageBodyPart = new MimeBodyPart();
+            messageBodyPart.setContent(text, "text/html");
+            Multipart multipart = new MimeMultipart();
+
+            multipart.addBodyPart(messageBodyPart);
+
+            messageBodyPart = new MimeBodyPart();
+            File file = new File(URI.create(filepath));
+            DataSource source = new FileDataSource(filepath);
+            messageBodyPart.setDataHandler(new DataHandler((source)));
+            messageBodyPart.setFileName(filepath);
+            multipart.addBodyPart(messageBodyPart);
+
+            message.setContent(multipart);
+
+            MailSender sm = new MailSender(message);
+            sm.execute();
             return true;
         }
         catch (MessagingException | UnsupportedEncodingException e) {

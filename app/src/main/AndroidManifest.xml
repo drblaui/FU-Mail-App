@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="me.drblau.fumailapp">
 	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 	<application
 		android:allowBackup="true"
 		android:icon="@drawable/logo"
@@ -18,9 +19,16 @@
 
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
+			<intent-filter>
+				<data android:scheme="mailto" />
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.APP_EMAIL" />
+			</intent-filter>
 		</activity>
 
 		<activity android:name=".ui.settings.SettingsActivity" />
+		<activity android:name=".ui.create.MailCreatorActivity" />
 	</application>
 
 </manifest>

@@ -31,7 +31,7 @@ public class LoginDialogFragment extends DialogFragment {
             listener = (LoginDialogListener) context;
         }
         catch (ClassCastException e) {
-            throw new ClassCastException(getActivity().toString() + "must implement NoticeDialogListener");
+            throw new ClassCastException(getActivity().toString() + "must implement LoginDialogListener");
         }
     }
 

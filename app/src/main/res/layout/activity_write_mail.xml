@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--TODO: Make pretty-->
+<ScrollView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+<androidx.constraintlayout.widget.ConstraintLayout
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content">
+
+	<HorizontalScrollView
+		android:id="@+id/hor_scroll"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:foregroundGravity="center"
+		app:layout_constraintBottom_toTopOf="@+id/receiver_edit"
+		app:layout_constraintEnd_toEndOf="@+id/receiver_edit"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent">
+
+		<LinearLayout
+			android:id="@+id/receivers"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:divider="@drawable/empty_tall_divider"
+			android:orientation="horizontal"
+			android:showDividers="middle">
+			<TextView
+				android:id="@+id/scroll_receiver"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/placeholder_receiver"
+				android:visibility="gone"/>
+		</LinearLayout>
+	</HorizontalScrollView>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		app:layout_constraintBottom_toTopOf="@+id/mail_subject"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/hor_scroll"
+		android:id="@+id/receiver_edit">
+		<ImageView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:src="@drawable/ic_mail_contact"
+			android:layout_gravity="center" />
+		<EditText
+			android:id="@+id/mail_to"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:autofillHints=".AUTOFILL_HINT_EMAIL_ADDRESS"
+			android:hint="@string/placeholder_receiver"
+			android:inputType="textEmailAddress" />
+	</LinearLayout>
+	<EditText
+		android:id="@+id/mail_subject"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="8dp"
+		android:hint="@string/placeholder_subject"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/receiver_edit"
+		android:inputType="textEmailSubject"
+		android:importantForAutofill="no" />
+
+	<EditText
+		android:id="@+id/mail_content"
+		android:layout_width="match_parent"
+		android:layout_height="500dp"
+		android:layout_marginTop="8dp"
+		android:hint="@string/placeholder_mail"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/mail_subject"
+		android:inputType="textMultiLine"
+		android:importantForAutofill="no" />
+
+	<Button
+		android:id="@+id/button_attachments"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="16dp"
+		android:text="@string/button_attachments"
+		app:layout_constraintBottom_toTopOf="@+id/mail_send"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/mail_content"
+		android:drawableEnd="@drawable/ic_attachment"
+		android:background="@color/colorWhite" />
+
+	<Button
+		android:id="@+id/mail_send"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="161dp"
+		android:layout_marginTop="10dp"
+		android:layout_marginEnd="162dp"
+		android:layout_marginBottom="16dp"
+		android:drawableEnd="@drawable/ic_sent"
+		android:text="@string/button_send"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/button_attachments"
+		android:background="@color/colorWhite"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

@@ -31,4 +31,18 @@
 	<string name="loggedIn">Angemeldet bleiben</string>
 	<string name="nav_header_title">Beispiel Nutzer</string>
 	<string name="nav_header_subtitle">beisplNu19@zedat.fu-berlin.de</string>
+	<string name="placeholder_receiver">Empfänger</string>
+	<string name="placeholder_subject">Betreff</string>
+	<string name="placeholder_mail">E-Mail Inhalt</string>
+	<string name="button_send">Senden</string>
+	<string name="button_attachments">Anhänge</string>
+	<string name="mail_header">Eine neue E-Mail schreiben</string>
+	<string name="mail_send_success">E-Mail erfolgreich versendet</string>
+	<string name="mail_send_failed">E-Mail konnte nicht versendet werden. Bitte versuche es erneut!</string>
+	<string name="mail_invalid">E-Mail entspricht keiner echten Mail-Addresse</string>
+	<string name="change_mail">E-Mail verändern</string>
+	<string name="confirm">Bestätigen</string>
+	<string name="error_receiver">Empfänger darf nicht leer sein</string>
+	<string name="error_subject">Betreff darf nicht leer sein</string>
+	<string name="error_body">E-Mail Inhalt darf ohne Anhang nicht leer sein</string>
 </resources>

@@ -35,6 +35,7 @@
 	<!-- Dialog Buttons -->
 	<string name="signin">Sign-In</string>
 	<string name="cancel">Cancel</string>
+	<string name="confirm">Confirm</string>
 
 	<!-- Login Dialog Options -->
 	<string name="login_needed">You need to be logged in to use this App</string>
@@ -62,5 +63,22 @@
 	<string name="encryptor">En- and Decryptor</string>
 	<string name="url_en_decryptor" translatable="false">https://gist.github.com/JosiasSena/3bf4ca59777f7dedcaf41a495d96d984</string>
 	<string name="tap_to_view">Tap to view</string>
+	<string name="url_icons" translatable="false">https://material.io/resources/icons/</string>
+	<string name="icons" translatable="false">Icons</string>
+
+	<!-- Write Mail -->
+	<string name="placeholder_receiver">Receiver(s)</string>
+	<string name="placeholder_subject">Subject</string>
+	<string name="placeholder_mail">E-Mail Content</string>
+	<string name="button_send">Send</string>
+	<string name="button_attachments">Attachments</string>
+	<string name="mail_header">Write a new E-Mail</string>
+	<string name="mail_send_success">E-Mail send successfully</string>
+	<string name="mail_send_failed">E-Mail could not be send. Please try again.</string>
+	<string name="mail_invalid">E-Mail is invalid!</string>
+	<string name="change_mail">Change E-Mail</string>
+	<string name="error_receiver">Receiver(s) can\'t be empty</string>
+	<string name="error_subject">Subject can\'t be empty</string>
+	<string name="error_body">E-Mail Content can\'t be empty without attachment</string>
 
 </resources>
