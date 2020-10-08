@@ -24,7 +24,7 @@ With the help of JavaMail you can view all folders that are in the UNIX Mebmail.
 ### Write Mails to anyone ✔️
 
 Just like every other Mail Client, this App allows you to write Mails to anybody with a real Mail Address, doesn't matter if it's from the FU or from somewhere else
-> While sending Mails is implemented and a Button for the Attachments is also there, you still can't add attachments
+> While sending Mails is implemented and a Button for the Attachments is also there, you still can't add attachments ![FuckJava](java_expierience.png)
 
 > Tip: You can also embed HTML into your Mails and open the app with any Variation of the [mailto:](https://en.wikipedia.org/wiki/Mailto#Examples) Link
 
