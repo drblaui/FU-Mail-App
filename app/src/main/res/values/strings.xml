@@ -23,7 +23,7 @@
 	<string name="please_login">Please Login</string>
 
 	<!-- Hints -->
-	<string name="email_hint">john.doe</string>
+	<string name="email_hint">johD15@zedat.fu-berlin.de</string>
 	<string name="password_hint">Password</string>
 	<string name="name_hint">John Doe</string>
 
@@ -38,14 +38,9 @@
 	<string name="confirm">Confirm</string>
 
 	<!-- Login Dialog Options -->
+	<string name="invalid_email">Your E-Mail needs to contain @zedat.fu-berlin.de</string>
 	<string name="login_needed">You need to be logged in to use this App</string>
 	<string name="login_checkbox">Keep me logged in</string>
-
-	<!-- Mail Types -->
-	<string-array name="mail_dropdown">
-		<item>\@zedat.fu-berlin.de</item>
-		<item>\@fu-berlin.de</item>
-	</string-array>
 
 	<!-- Settings -->
 	<string name="general">General</string>
@@ -53,6 +48,8 @@
 	<string name="loggedIn">Stay logged in</string>
 	<string name="logout">Logout</string>
 	<string name="logout_summary">Log yourself out</string>
+	<string name="signature">Signature</string>
+	<string name="default_signature"><![CDATA[-- <br> This message was sent by the <a href="https://github.com/drblaui/Fu-Mail-App">FU-Mail-App E-Mail Client</a>]]></string>
 
 	<!-- Credits -->
 	<string name="credits" translatable="false">Credits</string>

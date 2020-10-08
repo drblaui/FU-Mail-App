@@ -8,6 +8,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
+import androidx.preference.CheckBoxPreference;
+import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceScreen;
@@ -27,6 +29,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         super.onActivityCreated(savedInstanceState);
         PreferenceScreen preferenceScreen = getPreferenceScreen();
         Preference preference = preferenceScreen.findPreference("logoutButton");
+        final SharedPreferences sharedPreferences = getActivity().getSharedPreferences("loginData", Context.MODE_PRIVATE);
+        final SharedPreferences.Editor editor = sharedPreferences.edit();
 
         assert preference != null;
         preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -34,8 +38,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             public boolean onPreferenceClick(Preference preference) {
                 //Erase Login Data and restart app
                 //TODO: Remove app starting two times
-                SharedPreferences sharedPreferences = getActivity().getSharedPreferences("loginData", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.clear();
                 editor.commit();
 
@@ -49,6 +51,29 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 System.exit(0);
 
                 return true;
+            }
+        });
+
+
+        CheckBoxPreference stayLogged = preferenceScreen.findPreference("keepLoggedIn");
+        stayLogged.setChecked(sharedPreferences.getBoolean("Keep_Login", false));
+        stayLogged.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                editor.putBoolean("Keep_Login", (Boolean) newValue);
+                editor.commit();
+                return true;
+            }
+        });
+
+        EditTextPreference signature = preferenceScreen.findPreference("signature");
+        signature.setText(sharedPreferences.getString("signature", getString(R.string.default_signature)));
+        signature.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                editor.putString("signature", newValue.toString().replace("\n", "<br>"));
+                editor.commit();
+                return false;
             }
         });
     }

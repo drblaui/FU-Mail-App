@@ -1,12 +1,9 @@
 package me.drblau.fumailapp.util.mail;
 
 
-import android.net.Uri;
+import android.content.Context;
 
-import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Properties;
 
@@ -56,7 +53,7 @@ public class MailHandlerSMTP {
         });
     }
 
-    public boolean sendMessage(ArrayList<String> receivers, String subject, String text) {
+    public boolean sendMessage(ArrayList<String> receivers, String subject, String text, String signature) {
         try {
             //Generate Message and give it to MailSender, since Sending should be Async
             Message message = new MimeMessage(session);
@@ -71,6 +68,8 @@ public class MailHandlerSMTP {
             message.setRecipients(Message.RecipientType.TO, to);
             message.setSubject(subject);
             //Allows HTML Formatting
+
+            text = text + "<br>" + signature;
             message.setContent(text, "text/html");
 
            MailSender sm = new MailSender(message);
@@ -83,7 +82,7 @@ public class MailHandlerSMTP {
         }
     }
 
-    public boolean sendMessage(ArrayList<String> receivers, String subject, String text, String filepath) {
+    public boolean sendMessage(ArrayList<String> receivers, String subject, String text, String filepath, String signature) {
         try {
             //Generate Message and give it to MailSender, since Sending should be Async
             Message message = new MimeMessage(session);
@@ -104,7 +103,7 @@ public class MailHandlerSMTP {
             multipart.addBodyPart(messageBodyPart);
 
             messageBodyPart = new MimeBodyPart();
-            File file = new File(URI.create(filepath));
+
             DataSource source = new FileDataSource(filepath);
             messageBodyPart.setDataHandler(new DataHandler((source)));
             messageBodyPart.setFileName(filepath);

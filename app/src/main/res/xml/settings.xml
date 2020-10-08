@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 	<PreferenceCategory android:title="@string/general">
+		<EditTextPreference
+			android:title="@string/signature"
+			android:key="signature"
+			android:defaultValue="@string/default_signature"/>
 		<CheckBoxPreference
 			android:title=""
 			android:defaultValue="true"

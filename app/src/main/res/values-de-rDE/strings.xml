@@ -45,4 +45,7 @@
 	<string name="error_receiver">Empfänger darf nicht leer sein</string>
 	<string name="error_subject">Betreff darf nicht leer sein</string>
 	<string name="error_body">E-Mail Inhalt darf ohne Anhang nicht leer sein</string>
+	<string name="invalid_email">Deine E-Mail muss @zedat.fu-berlin.de beinhalten</string>
+	<string name="signature">Signatur</string>
+	<string name="default_signature"><![CDATA[-- <br> Diese Nachricht wurde vom <a href="https://github.com/drblaui/Fu-Mail-App">FU-Mail-App E-Mail Client</a> gesendet.]]></string>
 </resources>

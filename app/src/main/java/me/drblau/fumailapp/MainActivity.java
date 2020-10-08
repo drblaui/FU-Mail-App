@@ -2,12 +2,13 @@
  * This implements the ZeDat Unix Webmail as an App
  *
  * @author Alexander Rudolph
- * @version INDEV 0.6.0
+ * @version INDEV 0.8.0
  * @since 2020-09-24
  */
 
 package me.drblau.fumailapp;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -20,7 +21,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -37,8 +37,13 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.IOException;
-import java.security.*;
-import java.security.cert.*;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SignatureException;
+import java.security.UnrecoverableEntryException;
 import java.util.Objects;
 
 import javax.crypto.BadPaddingException;
@@ -48,8 +53,6 @@ import javax.crypto.NoSuchPaddingException;
 import me.drblau.fumailapp.ui.create.MailCreatorActivity;
 import me.drblau.fumailapp.ui.login.LoginDialogFragment;
 import me.drblau.fumailapp.ui.settings.SettingsActivity;
-import me.drblau.fumailapp.util.mail.MailHandlerSMTP;
-import me.drblau.fumailapp.util.passwort_handling.Decrypt;
 import me.drblau.fumailapp.util.passwort_handling.Encrypt;
 
 //CAREFUL, VERY XXX(problematic or misguiding code) HERE DUE TO SPAGHETTI FALLING OUT OF MY POCKET
@@ -57,9 +60,6 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
     //Helpers
     private AppBarConfiguration mAppBarConfiguration;
     private Encrypt encryptor;
-    private Decrypt decryptor;
-    private MailHandlerSMTP handler;
-    private byte[] iv;
 
     //Login
     private View view;
@@ -71,7 +71,6 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
     private static final String PREFS_MAIL = "Email";
     private static final String mailDefault = "john.doe@fu-berlin.de";
     private static final String PREFS_PASSWORD = "Password";
-    private static final String passDefault = "password";
     private static final String PREFS_USERNAME = "Username";
     private static final String usernameDefault = "FU Berlin Mail App User";
     private static final String PREFS_STAY_LOGGED_IN = "Keep_Login";
@@ -91,22 +90,11 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
         super.onCreate(savedInstanceState);
 
         encryptor = new Encrypt();
-        //Decrypt could have problems on init (it obviously shouldn't)
-        try {
-            decryptor = new Decrypt();
-        } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException |
-                IOException e) {
-            e.printStackTrace();
-        }
 
         //If User saved his Login Data
         settings = this.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         if(settings.getString(PREFS_MAIL, null) != null) {
             isLoggedIn = true;
-        }
-        if(settings.getString(PREFS_IV, null) != null) {
-            //Get Encryption IV
-            iv = Base64.decode(settings.getString(PREFS_IV, null), Base64.DEFAULT);
         }
 
         //Handle what to show
@@ -136,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
             //Change Header Text accordingly
             String username = settings.getString(PREFS_USERNAME, usernameDefault);
             String email = settings.getString(PREFS_MAIL, mailDefault);
-            TextView navUsername = (TextView) header.findViewById(R.id.name);
+            TextView navUsername = header.findViewById(R.id.name);
             navUsername.setText(username);
             TextView eMail =  header.findViewById(R.id.email);
             eMail.setText(email);
@@ -152,10 +140,10 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
         setSupportActionBar(toolbar);
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
+        @SuppressLint("CutPasteId") NavigationView navigationView = findViewById(R.id.nav_view);
         //May be deprecated, but still works
         //Make drawer drawable
-        mAppBarConfigurationBuilder.setDrawerLayout(drawer);
+        mAppBarConfigurationBuilder.setOpenableLayout(drawer);
         mAppBarConfiguration = mAppBarConfigurationBuilder.build();
 
         final NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
@@ -192,9 +180,12 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
         final EditText mail = dial.findViewById(R.id.email_input);
         final EditText pass = dial.findViewById(R.id.password_input);
         final EditText nam = dial.findViewById(R.id.name_input);
-        final Spinner end = dial.findViewById(R.id.email_ending);
         final CheckBox check = dial.findViewById(R.id.keep_logged_in);
-        String email = mail.getText().toString() + end.getSelectedItem().toString();
+        String email = mail.getText().toString();
+        if(!email.contains("@zedat.fu-berlin.de")) {
+            Snackbar.make(this.view, R.string.invalid_email, Snackbar.LENGTH_LONG).show();
+            return;
+        }
         String password = pass.getText().toString();
         String name = nam.getText().toString();
         String encPass = encrypt(password);
@@ -209,6 +200,7 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
         editor.putBoolean(PREFS_STAY_LOGGED_IN, keepLogin);
         editor.putString(PREFS_IV, ivString);
         editor.apply();
+        editor.commit();
 
         //Restart Application, so it knows we are logged in
         finish();
@@ -223,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
     }
 
     /**
-     * For Encrypt and Decrypt look at:
+     *
      * @link https://gist.github.com/JosiasSena/3bf4ca59777f7dedcaf41a495d96d984
      */
 
@@ -237,22 +229,6 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
                 IllegalBlockSizeException | BadPaddingException e) {
             e.printStackTrace();
 
-        }
-        return "";
-    }
-    /**
-     * For Encrypt and Decrypt look at:
-     * @link https://gist.github.com/JosiasSena/3bf4ca59777f7dedcaf41a495d96d984
-     */
-    public String decrypt(String text) {
-
-        try {
-            assert decryptor != null;
-            byte[] txt = Base64.decode(text, Base64.DEFAULT);
-            return decryptor.decryptData(ALIAS, txt, iv);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
         }
         return "";
     }
@@ -276,5 +252,18 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
             }
             startActivity(intent);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        //Clear Preferences if User does not wish to be logged in
+        System.out.println("Stop is called!");
+        if(!settings.getBoolean(PREFS_STAY_LOGGED_IN, false)) {
+            SharedPreferences.Editor editor = settings.edit();
+            editor.clear();
+            editor.apply();
+        }
+        super.onDestroy();
+
     }
 }

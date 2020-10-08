@@ -1,11 +1,9 @@
 package me.drblau.fumailapp.ui.create;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -26,14 +24,11 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
-import java.util.regex.Pattern;
 
 import me.drblau.fumailapp.R;
 import me.drblau.fumailapp.util.mail.MailHandlerSMTP;
@@ -42,6 +37,7 @@ import me.drblau.fumailapp.util.passwort_handling.Decrypt;
 
 //TODO: Comment
 public class MailCreatorActivity extends AppCompatActivity implements ChangeMailDialogFragment.ChangeMailDialogListener {
+    private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 6669995;
     Button mail_sender;
     Button attachment_adder;
     EditText mail_to;
@@ -56,9 +52,6 @@ public class MailCreatorActivity extends AppCompatActivity implements ChangeMail
     private byte[] iv;
     private boolean hasAttachment = false;
     private ArrayList<String> receivers = new ArrayList<>();
-
-    //Validate mail
-    public static final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
 
 
     //SharedPreferences
@@ -149,7 +142,7 @@ public class MailCreatorActivity extends AppCompatActivity implements ChangeMail
         attachment_adder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_PICK);
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.setType("*/*");
                 startActivityForResult(intent, 1);
             }
@@ -180,7 +173,7 @@ public class MailCreatorActivity extends AppCompatActivity implements ChangeMail
                     success = handler.sendMessage(receivers, subject, message, test);
                 }
                 else {
-                    success = handler.sendMessage(receivers, subject, message);
+                    success = handler.sendMessage(receivers, subject, message, settings.getString("signature", getString(R.string.default_signature)));
                 }
 
                 if(success) {
@@ -199,16 +192,9 @@ public class MailCreatorActivity extends AppCompatActivity implements ChangeMail
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1) {
-            Uri uri = data.getData();
-            test = uri.toString();
-            System.out.println(test);
-            try {
-                InputStream strem = getContentResolver().openInputStream(uri);
-                System.out.println(strem.read());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        if (requestCode == 1 && resultCode == RESULT_OK) {
+             test = data.getData().getPath();
+
         }
     }
 

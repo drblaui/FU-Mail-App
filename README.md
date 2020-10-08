@@ -24,22 +24,25 @@ With the help of JavaMail you can view all folders that are in the UNIX Mebmail.
 ### Write Mails to anyone ✔️
 
 Just like every other Mail Client, this App allows you to write Mails to anybody with a real Mail Address, doesn't matter if it's from the FU or from somewhere else
-> While sending Mails is implemented and a Button for the Action is also there, you still can't add attachments
+> While sending Mails is implemented and a Button for the Attachments is also there, you still can't add attachments
 
 > Tip: You can also embed HTML into your Mails and open the app with any Variation of the [mailto:](https://en.wikipedia.org/wiki/Mailto#Examples) Link
 
-### Add a signature to your mail ❌
+### Add a signature to your mail ✔️
 
-Use your University Mail for work on the FU? Add a Signature so people know how to reach/find you
+Use your University Mail for work on the FU? Add a (HTML) Signature so people know how to reach/find you
 
 
 ## Known Issues
 
-Mails may be marked as Spam
+- Mails may be marked as Spam (Currently only on web.de)
+- If user chooses not to save Login Data. It may sometimes still be saved (This will be fixed when I cleanup my Code after the App works)
+- It is possible to login with wrong credentials. Sending Mails will obviously not work
 
 ## Release Notes
-### INDEV 0.4.0
+### INDEV 0.6.0
 - UI added
 - Login added
 - Settings added
 - Mail sending added
+- Signature added
