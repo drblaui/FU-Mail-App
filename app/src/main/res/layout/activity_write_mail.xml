@@ -10,7 +10,7 @@
 	android:layout_height="wrap_content">
 
 	<HorizontalScrollView
-		android:id="@+id/hor_scroll"
+		android:id="@+id/hor_scroll_receivers"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:foregroundGravity="center"
@@ -41,13 +41,14 @@
 		app:layout_constraintBottom_toTopOf="@+id/mail_subject"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/hor_scroll"
+		app:layout_constraintTop_toBottomOf="@+id/hor_scroll_receivers"
 		android:id="@+id/receiver_edit">
 		<ImageView
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:src="@drawable/ic_mail_contact"
-			android:layout_gravity="center" />
+			android:layout_gravity="center"
+			android:contentDescription="TODO" />
 		<EditText
 			android:id="@+id/mail_to"
 			android:layout_width="match_parent"
@@ -80,6 +81,31 @@
 		android:inputType="textMultiLine"
 		android:importantForAutofill="no" />
 
+	<HorizontalScrollView
+		android:id="@+id/hor_scroll_files"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:foregroundGravity="center"
+		app:layout_constraintBottom_toTopOf="@+id/button_attachments"
+		app:layout_constraintEnd_toEndOf="@+id/button_attachments"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@id/mail_content">
+
+		<LinearLayout
+			android:id="@+id/attachments"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:divider="@drawable/empty_tall_divider"
+			android:orientation="horizontal"
+			android:showDividers="middle">
+			<TextView
+				android:id="@+id/scroll_attachment"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/button_attachments"
+				android:visibility="gone"/>
+		</LinearLayout>
+	</HorizontalScrollView>
 	<Button
 		android:id="@+id/button_attachments"
 		android:layout_width="match_parent"
@@ -89,7 +115,7 @@
 		app:layout_constraintBottom_toTopOf="@+id/mail_send"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/mail_content"
+		app:layout_constraintTop_toBottomOf="@+id/hor_scroll_files"
 		android:drawableEnd="@drawable/ic_attachment"
 		android:background="@color/colorWhite" />
 

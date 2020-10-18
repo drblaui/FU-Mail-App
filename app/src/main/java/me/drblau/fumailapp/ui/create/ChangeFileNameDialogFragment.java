@@ -16,42 +16,47 @@ import androidx.fragment.app.DialogFragment;
 
 import me.drblau.fumailapp.R;
 
-public class ChangeMailDialogFragment extends DialogFragment {
-    private String mail;
+public class ChangeFileNameDialogFragment extends DialogFragment {
+    private String filename;
+    private String fileType;
 
-    static ChangeMailDialogFragment newInstance(String mail) {
-        ChangeMailDialogFragment f = new ChangeMailDialogFragment();
+    static ChangeFileNameDialogFragment newInstance(String filename) {
+        ChangeFileNameDialogFragment f = new ChangeFileNameDialogFragment();
 
         Bundle args = new Bundle();
-        args.putString("mail", mail);
+        args.putString("filename", filename);
         f.setArguments(args);
 
         return f;
     }
 
-    public interface ChangeMailDialogListener {
-        public void onDialogPositiveClick(DialogFragment dialog);
+    public interface ChangeFileNameDialogListener {
+        //Prevent interference
+        public void onFilenameDialogPositiveClick(DialogFragment dialog);
         public void onDialogNegativeClick(DialogFragment dialog);
     }
 
-    private ChangeMailDialogListener listener;
+    private ChangeFileNameDialogListener listener;
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        //Give Parent Caller the dialog
+        //Give parent caller the dialog
         try {
-            listener = (ChangeMailDialogListener) context;
+            listener = (ChangeFileNameDialogListener) context;
         }
         catch (ClassCastException e) {
-            throw new ClassCastException(getActivity().toString() + "must implement ChangeMailDialogListener");
+            throw new ClassCastException(getActivity().toString() + "must implement ChangeFileNameDialogListener");
         }
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mail = getArguments().getString("mail");
+        String name = getArguments().getString("filename");
+        //User should not be allowed to edit Filetype(May produce errors)
+        fileType = name.substring(name.lastIndexOf("."));
+        filename = name.replace(fileType, "");
     }
 
     @NonNull
@@ -59,25 +64,29 @@ public class ChangeMailDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = requireActivity().getLayoutInflater();
-        View layout = inflater.inflate(R.layout.change_mail_dialog, null);
-        EditText et = (EditText) layout.findViewById(R.id.mail_changer);
-        et.setText(mail);
-        //Hide old mail to change it later
-        TextView tw = (TextView) layout.findViewById(R.id.mail_old);
-        tw.setText(mail);
+        View layout = inflater.inflate(R.layout.change_filename_dialog, null);
+        EditText et = (EditText) layout.findViewById(R.id.filename_changer);
+        et.setText(filename);
+        TextView tw = (TextView) layout.findViewById(R.id.filetype);
+        tw.setText(fileType);
+
+        //Hide old name so we can find it later and change it
+        tw = (TextView) layout.findViewById(R.id.filename_old);
+        tw.setText(filename + fileType);
+
         builder.setView(layout)
                 .setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        listener.onDialogPositiveClick(ChangeMailDialogFragment.this);
+                        listener.onFilenameDialogPositiveClick(ChangeFileNameDialogFragment.this);
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        listener.onDialogNegativeClick(ChangeMailDialogFragment.this);
+                        listener.onDialogNegativeClick(ChangeFileNameDialogFragment.this);
                     }
                 });
-        return  builder.create();
+        return builder.create();
     }
 }

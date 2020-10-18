@@ -44,6 +44,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SignatureException;
 import java.security.UnrecoverableEntryException;
+import java.security.cert.CertificateException;
 import java.util.Objects;
 
 import javax.crypto.BadPaddingException;
@@ -53,6 +54,8 @@ import javax.crypto.NoSuchPaddingException;
 import me.drblau.fumailapp.ui.create.MailCreatorActivity;
 import me.drblau.fumailapp.ui.login.LoginDialogFragment;
 import me.drblau.fumailapp.ui.settings.SettingsActivity;
+import me.drblau.fumailapp.util.mail.MailFetcher;
+import me.drblau.fumailapp.util.passwort_handling.Decrypt;
 import me.drblau.fumailapp.util.passwort_handling.Encrypt;
 
 //CAREFUL, VERY XXX(problematic or misguiding code) HERE DUE TO SPAGHETTI FALLING OUT OF MY POCKET
@@ -60,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
     //Helpers
     private AppBarConfiguration mAppBarConfiguration;
     private Encrypt encryptor;
+    private byte[] iv;
 
     //Login
     private View view;
@@ -77,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
     private static final String PREFS_IV = "IV";
 
     private SharedPreferences settings;
+
 
     public void login(View view) {
         //Overlay Login Dialog over current view
@@ -141,7 +146,6 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         @SuppressLint("CutPasteId") NavigationView navigationView = findViewById(R.id.nav_view);
-        //May be deprecated, but still works
         //Make drawer drawable
         mAppBarConfigurationBuilder.setOpenableLayout(drawer);
         mAppBarConfiguration = mAppBarConfigurationBuilder.build();
@@ -160,6 +164,21 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
                 startActivity(intent);
             }
         });
+        String email = settings.getString(PREFS_MAIL, mailDefault);
+        String pass = settings.getString(PREFS_PASSWORD, "password");
+        if(settings.getString(PREFS_IV, null) != null) {
+            iv = Base64.decode(settings.getString(PREFS_IV, null), Base64.DEFAULT);
+        }
+
+        //TODO
+        //Ignore for now
+        MailFetcher fetcher = null;
+        try {
+            fetcher = new MailFetcher(email, decrypt(pass), "INBOX");
+            //fetcher.execute();
+        } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException | IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -182,6 +201,7 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
         final EditText nam = dial.findViewById(R.id.name_input);
         final CheckBox check = dial.findViewById(R.id.keep_logged_in);
         String email = mail.getText().toString();
+        //Make sure it's an ZeDat Mail (Note fu-berlin.de does not work)
         if(!email.contains("@zedat.fu-berlin.de")) {
             Snackbar.make(this.view, R.string.invalid_email, Snackbar.LENGTH_LONG).show();
             return;
@@ -234,29 +254,38 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
     }
 
     private void checkDeepLink(){
+        //Check if user opened a mailto: link, so we can redirect to the MailCreatorActivity
         if (getIntent() != null && getIntent().getData() != null) {
             Uri data = getIntent().getData();
             String scheme = data.getScheme();
-            MailTo mail = MailTo.parse(data.toString());
-            String receiver = mail.getTo();
-            String subject = mail.getSubject();
-            String body = mail.getBody();
-            Log.d("FU-Mail-App","Created App instance over Scheme: " + scheme);
-            Intent intent = new Intent(this,MailCreatorActivity.class);
-            intent.putExtra("receiver", receiver);
-            if(subject != null) {
-                intent.putExtra("subject", subject);
+            //Be sure we only handle mailto
+            if(scheme.equals("mailto")) {
+                MailTo mail = MailTo.parse(data.toString());
+                String receiver = mail.getTo();
+                String subject = mail.getSubject();
+                String body = mail.getBody();
+                Log.d("FU-Mail-App","Created App instance over Scheme: " + scheme);
+                Intent intent = new Intent(this,MailCreatorActivity.class);
+                //Put into intent what we had in the mailto link
+                if(receiver != null) {
+                    intent.putExtra("receiver", receiver);
+                }
+                if(subject != null) {
+                    intent.putExtra("subject", subject);
+                }
+                if(body != null) {
+                    intent.putExtra("body", body);
+                }
+                startActivity(intent);
             }
-            if(body != null) {
-                intent.putExtra("body", body);
-            }
-            startActivity(intent);
+
         }
     }
 
     @Override
     protected void onDestroy() {
         //Clear Preferences if User does not wish to be logged in
+        //TODO: Does not (always) work
         System.out.println("Stop is called!");
         if(!settings.getBoolean(PREFS_STAY_LOGGED_IN, false)) {
             SharedPreferences.Editor editor = settings.edit();
@@ -265,5 +294,18 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
         }
         super.onDestroy();
 
+    }
+
+    public String decrypt(String text) throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
+        Decrypt decryptor = new Decrypt();
+
+        try {
+            byte[] txt = Base64.decode(text, Base64.DEFAULT);
+            return decryptor.decryptData(ALIAS, txt, iv);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 }

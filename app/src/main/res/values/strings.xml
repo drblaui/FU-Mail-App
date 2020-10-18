@@ -74,6 +74,7 @@
 	<string name="mail_send_failed">E-Mail could not be send. Please try again.</string>
 	<string name="mail_invalid">E-Mail is invalid!</string>
 	<string name="change_mail">Change E-Mail</string>
+	<string name="change_filename">Change Filename</string>
 	<string name="error_receiver">Receiver(s) can\'t be empty</string>
 	<string name="error_subject">Subject can\'t be empty</string>
 	<string name="error_body">E-Mail Content can\'t be empty without attachment</string>

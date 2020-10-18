@@ -1,9 +1,12 @@
 package me.drblau.fumailapp.ui.create;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -24,27 +27,32 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import me.drblau.fumailapp.R;
 import me.drblau.fumailapp.util.mail.MailHandlerSMTP;
 import me.drblau.fumailapp.util.passwort_handling.Decrypt;
 
 
-//TODO: Comment
-public class MailCreatorActivity extends AppCompatActivity implements ChangeMailDialogFragment.ChangeMailDialogListener {
+//TODO: Allow user to remove receiver and attachments
+public class MailCreatorActivity extends AppCompatActivity implements ChangeMailDialogFragment.ChangeMailDialogListener, ChangeFileNameDialogFragment.ChangeFileNameDialogListener {
+    //TODO: Cleanup
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 6669995;
+    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 6669996;
     Button mail_sender;
     Button attachment_adder;
     EditText mail_to;
     private MailHandlerSMTP handler;
     private SharedPreferences settings;
     private Decrypt decryptor;
-    String test = null;
 
     private View currEdit;
 
@@ -52,6 +60,11 @@ public class MailCreatorActivity extends AppCompatActivity implements ChangeMail
     private byte[] iv;
     private boolean hasAttachment = false;
     private ArrayList<String> receivers = new ArrayList<>();
+    /*
+     * Attachments are saved as <Filename, Filepath> so we don't have to delete and recreate the file
+     * every time a user changes the name. Filename setting is handled in MailHandler anyways
+     */
+    private HashMap<String, String>  attachments = new HashMap<>();
 
 
     //SharedPreferences
@@ -125,11 +138,13 @@ public class MailCreatorActivity extends AppCompatActivity implements ChangeMail
 
             @Override
             public void afterTextChanged(Editable s) {
+                //Check for valid mail after every space
                 if(s.length() > 0 && s.toString().charAt(s.toString().length() - 1) == ' ') {
                     validateEmail();
                 }
             }
         });
+        // Also check for valid mail after unfocus of edittext
         mail_to.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -142,17 +157,29 @@ public class MailCreatorActivity extends AppCompatActivity implements ChangeMail
         attachment_adder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intent.setType("*/*");
-                startActivityForResult(intent, 1);
+                if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+
+                    requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                            MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+                }
+                if(checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+                    //TODO Open intent AFTER user accepted or throw error
+                }
+                else {
+                    //Let user pick any File
+                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                    intent.setType("*/*");
+                    startActivityForResult(intent, 1);
+                }
             }
         });
 
         mail_sender.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: Implement attachments https://www.tutorialspoint.com/javamail_api/javamail_api_send_email_with_attachment.htm
-                //https://www.dev2qa.com/how-to-get-real-file-path-from-android-uri/
+                //Get message contents
                 String subject = ((EditText) findViewById(R.id.mail_subject)).getText().toString();
                 String message = ((EditText) findViewById(R.id.mail_content)).getText().toString();
                 if(receivers.isEmpty()) {
@@ -168,9 +195,11 @@ public class MailCreatorActivity extends AppCompatActivity implements ChangeMail
                     return;
                 }
 
+                //TODO: Error handling let's some errors pass
                 boolean success;
-                if(test != null) {
-                    success = handler.sendMessage(receivers, subject, message, test);
+                //If any attachments are attachable
+                if(!attachments.isEmpty()) {
+                    success = handler.sendMessage(receivers, subject, message, attachments, settings.getString("signature", getString(R.string.default_signature)));
                 }
                 else {
                     success = handler.sendMessage(receivers, subject, message, settings.getString("signature", getString(R.string.default_signature)));
@@ -193,7 +222,55 @@ public class MailCreatorActivity extends AppCompatActivity implements ChangeMail
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1 && resultCode == RESULT_OK) {
-             test = data.getData().getPath();
+
+            try {
+                //NEVER EVER TOUCH THIS CODE AGAIN, THIS TOOK DAYS TO GET IT WORKING
+                Uri uri = data.getData();
+                InputStream is = getContentResolver().openInputStream(uri);
+                String filename = uri.getLastPathSegment().substring(uri.getLastPathSegment().indexOf("/") + 1);
+                File file = new File(getFilesDir().getAbsolutePath() + filename);
+                FileOutputStream os = new FileOutputStream(file);
+                /*
+                * Write from external storage to App Storage, so the app has always permission to
+                * write on the file
+                * */
+                int read;
+                byte[] bytes = new byte[1024];
+                while((read = is.read(bytes)) != -1) {
+                    os.write(bytes, 0, read);
+                }
+                attachments.put(filename, file.getPath());
+                //You can touch now again
+                //Append File for user to see
+                String name = file.getName().replace("files", "");
+                LinearLayout layout = findViewById(R.id.attachments);
+                layout.setPadding(0, 10, 0, 0);
+                TextView tw = findViewById(R.id.scroll_attachment);
+                tw.append(":");
+                tw.setVisibility(View.VISIBLE);
+                tw = new TextView(this);
+                tw.setText(name);
+                tw.setBackground(getDrawable(R.drawable.round_corner));
+                tw.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_file, 0, 0, 0);
+                tw.setGravity(Gravity.CENTER);
+                tw.setPadding(8,3,8,3);
+                tw.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //Allow edit of filename
+                        currEdit = v;
+                        DialogFragment dialog = new ChangeFileNameDialogFragment();
+                        Bundle args = new Bundle();
+                        args.putString("filename", ((TextView) v).getText().toString());
+                        dialog.setArguments(args);
+                        dialog.show(getSupportFragmentManager(), "ChangeFilenameDialogFragment");
+                    }
+                });
+                layout.addView(tw);
+                hasAttachment = true;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
         }
     }
@@ -202,6 +279,7 @@ public class MailCreatorActivity extends AppCompatActivity implements ChangeMail
         EditText mailEdit = findViewById(R.id.mail_to);
         String mail = mailEdit.getText().toString();
         if(isValidMail(mail)) {
+            //Append to receivers list (visually and internal)
             mailEdit.setText("");
             LinearLayout layout = findViewById(R.id.receivers);
             layout.setPadding(0, 10, 0,0);
@@ -217,6 +295,7 @@ public class MailCreatorActivity extends AppCompatActivity implements ChangeMail
             tw.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    //Allow mail edit
                     currEdit = v;
                     DialogFragment dialog = new ChangeMailDialogFragment();
                     Bundle args = new Bundle();
@@ -226,6 +305,7 @@ public class MailCreatorActivity extends AppCompatActivity implements ChangeMail
                 }
             });
             layout.addView(tw);
+            //Make sure we don't have the space (because we validate AFTER space is pressed)
             receivers.add(mail.trim());
         }
         else {
@@ -238,6 +318,7 @@ public class MailCreatorActivity extends AppCompatActivity implements ChangeMail
         if(mail.isEmpty()) {
             return false;
         }
+        //Mail REGEX
         else return Patterns.EMAIL_ADDRESS.matcher(mail.trim()).matches();
     }
 
@@ -262,13 +343,39 @@ public class MailCreatorActivity extends AppCompatActivity implements ChangeMail
     }
 
     @Override
+    //TODO: Maybe change to onMailDialogPositiveClick to avoid confusion
     public void onDialogPositiveClick(DialogFragment dialog) {
+        //Positive Dialog Option for Mail Change
         Dialog dial = dialog.getDialog();
-        ((TextView) currEdit).setText(((EditText) dial.findViewById(R.id.mail_changer)).getText().toString());
+        //Get Mails
+        String oldName = ((TextView) dial.findViewById(R.id.mail_old)).getText().toString();
+        String newName = ((EditText) dial.findViewById(R.id.mail_changer)).getText().toString();
+        ((TextView) currEdit).setText(newName);
+        //Replace Mail in receiver ArrayList
+        for(int i = 0; i < receivers.size(); i++) {
+            if(receivers.get(i).equals(oldName)) {
+                receivers.set(i, newName);
+                break;
+            }
+        }
     }
 
     @Override
     public void onDialogNegativeClick(DialogFragment dialog) {
+        //Globally the same for all Dialogs
         dialog.getDialog().cancel();
+    }
+
+    @Override
+    public void onFilenameDialogPositiveClick(DialogFragment dialog) {
+        Dialog dial = dialog.getDialog();
+        //Get names
+        String newName = ((EditText) dial.findViewById(R.id.filename_changer)).getText().toString() + ((TextView) dial.findViewById(R.id.filetype)).getText();
+        String oldName = ((TextView) dial.findViewById(R.id.filename_old)).getText().toString();
+        ((TextView) currEdit).setText(newName);
+
+        //Get path of old file name, delete key and recreate with new name
+        String path = attachments.remove(oldName);
+        attachments.put(newName, path);
     }
 }

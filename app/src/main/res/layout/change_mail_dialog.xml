@@ -22,6 +22,12 @@
 		android:layout_height="wrap_content"
 		android:inputType="textEmailAddress"
 		android:autofillHints=".AUTOFILL_HINT_EMAIL_ADDRESS"
+		android:selectAllOnFocus="true"
 		tools:ignore="LabelFor" />
+	<TextView
+		android:id="@+id/mail_old"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:visibility="gone" />
 
 </LinearLayout>

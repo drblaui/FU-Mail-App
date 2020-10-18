@@ -5,6 +5,8 @@ import android.content.Context;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.activation.DataHandler;
@@ -67,9 +69,10 @@ public class MailHandlerSMTP {
             }
             message.setRecipients(Message.RecipientType.TO, to);
             message.setSubject(subject);
-            //Allows HTML Formatting
+
 
             text = text + "<br>" + signature;
+            //Allows HTML Formatting
             message.setContent(text, "text/html");
 
            MailSender sm = new MailSender(message);
@@ -82,7 +85,7 @@ public class MailHandlerSMTP {
         }
     }
 
-    public boolean sendMessage(ArrayList<String> receivers, String subject, String text, String filepath, String signature) {
+    public boolean sendMessage(ArrayList<String> receivers, String subject, String text, HashMap<String, String> attachments, String signature) {
         try {
             //Generate Message and give it to MailSender, since Sending should be Async
             Message message = new MimeMessage(session);
@@ -97,17 +100,22 @@ public class MailHandlerSMTP {
             message.setRecipients(Message.RecipientType.TO, to);
             message.setSubject(subject);
             BodyPart messageBodyPart = new MimeBodyPart();
+            text = text + "<br>" + signature;
             messageBodyPart.setContent(text, "text/html");
             Multipart multipart = new MimeMultipart();
 
             multipart.addBodyPart(messageBodyPart);
 
-            messageBodyPart = new MimeBodyPart();
+            //Add attachments
+            for(Map.Entry<String, String> entry : attachments.entrySet()) {
+                messageBodyPart = new MimeBodyPart();
 
-            DataSource source = new FileDataSource(filepath);
-            messageBodyPart.setDataHandler(new DataHandler((source)));
-            messageBodyPart.setFileName(filepath);
-            multipart.addBodyPart(messageBodyPart);
+                DataSource source = new FileDataSource(entry.getValue());
+                messageBodyPart.setDataHandler(new DataHandler((source)));
+                messageBodyPart.setFileName(entry.getKey());
+                multipart.addBodyPart(messageBodyPart);
+            }
+
 
             message.setContent(multipart);
 
