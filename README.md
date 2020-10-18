@@ -28,8 +28,11 @@ Just like every other Mail Client, this App allows you to write Mails to anybody
 
 ### Add a signature to your mail ✔️
 
-Use your University Mail for work on the FU? Add a (HTML) Signature so people know how to reach/find you
+Use your University Mail for work at the FU? Add a (HTML) Signature so people know how to reach/find you
 
+### New Mail Widget ❌
+
+A custom Widget to see new Mails directly on your Home Screen
 
 ## Known Issues
 
@@ -38,7 +41,7 @@ Use your University Mail for work on the FU? Add a (HTML) Signature so people kn
 - It is possible to login with wrong credentials. Sending Mails will obviously not work
 
 ## Release Notes
-### INDEV 0.8.0
+### ALPHA 0.8.0
 - UI added
 - Login added
 - Settings added

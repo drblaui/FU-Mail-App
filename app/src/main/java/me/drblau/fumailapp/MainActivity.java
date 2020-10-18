@@ -2,7 +2,7 @@
  * This implements the ZeDat Unix Webmail as an App
  *
  * @author Alexander Rudolph
- * @version INDEV 0.8.0
+ * @version ALPHA 0.8.0
  * @since 2020-09-24
  */
 
