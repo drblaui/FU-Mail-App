@@ -47,4 +47,4 @@ A custom Widget to see new Mails directly on your Home Screen
 - Settings added
 - Mail sending added
 - Signature added
-- Attachments fully added
+- Attachments fully added :clap: :clap: :clap: :clap:
