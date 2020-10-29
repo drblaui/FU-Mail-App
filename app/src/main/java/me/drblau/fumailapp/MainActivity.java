@@ -36,6 +36,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -284,9 +285,20 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
 
     @Override
     protected void onDestroy() {
+        /*
+        * Files are attempted to be deleted at 3 different points.
+        * Whenever the User closes the app completely (cleanup reasons)
+        * When the User closes the MailCreator (TODO: Workaround for draft)
+        * When the User has send the message (obvious reasons)
+        * */
+        File[] files = getFilesDir().listFiles();
+        if(files != null) {
+            for(File file: files) {
+                file.delete();
+            }
+        }
         //Clear Preferences if User does not wish to be logged in
         //TODO: Does not (always) work
-        System.out.println("Stop is called!");
         if(!settings.getBoolean(PREFS_STAY_LOGGED_IN, false)) {
             SharedPreferences.Editor editor = settings.edit();
             editor.clear();

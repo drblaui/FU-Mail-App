@@ -4,6 +4,8 @@
 
 This is a <i>in devleopment</i> Mail Client that allows you to write and receive Mails from the ZeDat UNIX Webmail of the Freie Universität Berlin.
 
+This project is freezed for now, until I am more relaxed
+
 ## Features
 > Impelemted: ✔️ Planned but not yet implemented: ❌
 

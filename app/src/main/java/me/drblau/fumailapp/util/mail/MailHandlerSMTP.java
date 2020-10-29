@@ -3,6 +3,7 @@ package me.drblau.fumailapp.util.mail;
 
 import android.content.Context;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -75,7 +76,7 @@ public class MailHandlerSMTP {
             //Allows HTML Formatting
             message.setContent(text, "text/html");
 
-           MailSender sm = new MailSender(message);
+           MailSender sm = new MailSender(message, null);
            sm.execute();
             return true;
         }
@@ -85,8 +86,9 @@ public class MailHandlerSMTP {
         }
     }
 
-    public boolean sendMessage(ArrayList<String> receivers, String subject, String text, HashMap<String, String> attachments, String signature) {
+    public boolean sendMessage(ArrayList<String> receivers, String subject, String text, HashMap<String, String> attachments, String signature, File filesDir) {
         try {
+
             //Generate Message and give it to MailSender, since Sending should be Async
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(email, username));
@@ -107,6 +109,7 @@ public class MailHandlerSMTP {
             multipart.addBodyPart(messageBodyPart);
 
             //Add attachments
+
             for(Map.Entry<String, String> entry : attachments.entrySet()) {
                 messageBodyPart = new MimeBodyPart();
 
@@ -119,7 +122,7 @@ public class MailHandlerSMTP {
 
             message.setContent(multipart);
 
-            MailSender sm = new MailSender(message);
+            MailSender sm = new MailSender(message, filesDir);
             sm.execute();
             return true;
         }
