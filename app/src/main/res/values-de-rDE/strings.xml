@@ -49,4 +49,5 @@
 	<string name="signature">Signatur</string>
 	<string name="default_signature"><![CDATA[-- <br> Diese Nachricht wurde vom <a href="https://github.com/drblaui/Fu-Mail-App">FU-Mail-App E-Mail Client</a> gesendet.]]></string>
 	<string name="change_filename">Dateinamen ändern</string>
+	<string name="invalid_file">Nicht unterstützte Datei. Versuche sie über \"SDCARD\" oder deinen Internen Speicher auszuwählen.</string>
 </resources>

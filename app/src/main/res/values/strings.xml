@@ -78,5 +78,6 @@
 	<string name="error_receiver">Receiver(s) can\'t be empty</string>
 	<string name="error_subject">Subject can\'t be empty</string>
 	<string name="error_body">E-Mail Content can\'t be empty without attachment</string>
+	<string name="invalid_file">Invalid file. Try selecting it through \"SDCARD\" or your Internal Storage </string>
 
 </resources>
