@@ -50,4 +50,13 @@
 	<string name="default_signature"><![CDATA[-- <br> Diese Nachricht wurde vom <a href="https://github.com/drblaui/Fu-Mail-App">FU-Mail-App E-Mail Client</a> gesendet.]]></string>
 	<string name="change_filename">Dateinamen ändern</string>
 	<string name="invalid_file">Nicht unterstützte Datei. Versuche sie über \"SDCARD\" oder deinen Internen Speicher auszuwählen.</string>
+	<string name="inbox_fragment">Posteingang ist leer</string>
+	<string name="sent_fragment">Keine gesendeten Emails</string>
+	<string name="trash_fragment">Papierkorb ist leer</string>
+	<string name="drafts_fragment">Keine gespeicherten Entwürfe</string>
+	<string name="spam_fragment">Spam ist leer</string>
+	<string name="unread_fragment">Keine ungelesenen Emails</string>
+	<string name="special_thanks">Besonderes Dankeschön</string>
+	<string name="fu_planner">Sebastian Seedorf und Joshua dafür, dass ich Code Snippets von ihrer FU-Planner App benutzen durfte</string>
+	<string name="markRead">Als gelesen markieren</string>
 </resources>

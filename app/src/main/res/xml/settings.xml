@@ -47,4 +47,13 @@
 				android:data="@string/url_icons" />
 		</Preference>
 	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/special_thanks">
+		<Preference
+			android:title="@string/fu_planner"
+			android:summary="@string/tap_to_view">
+			<intent
+				android:action="android.intent.action.VIEW"
+				android:data="@string/url_fuplanner" />
+		</Preference>
+</PreferenceCategory>
 </PreferenceScreen>

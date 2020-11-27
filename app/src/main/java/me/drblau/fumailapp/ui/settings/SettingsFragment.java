@@ -33,37 +33,32 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         final SharedPreferences.Editor editor = sharedPreferences.edit();
 
         assert preference != null;
-        preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                //Erase Login Data and restart app
-                //TODO: Remove app starting two times
-                editor.clear();
-                editor.commit();
+        preference.setOnPreferenceClickListener(preference1 -> {
+            //Erase Login Data and restart app
+            //TODO: Remove app starting two times
+            editor.clear();
+            editor.commit();
+            editor.apply();
 
-                Intent startActivity = new Intent(getContext(), MainActivity.class);
-                int mPendingIntentId = 123456;
+            Intent startActivity = new Intent(getContext(), MainActivity.class);
+            int mPendingIntentId = 123456;
 
-                PendingIntent mPendingIntent = PendingIntent.getActivity(getContext(), mPendingIntentId, startActivity, PendingIntent.FLAG_CANCEL_CURRENT);
-                AlarmManager mgr = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
-                assert mgr != null;
-                mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
-                System.exit(0);
+            PendingIntent mPendingIntent = PendingIntent.getActivity(getContext(), mPendingIntentId, startActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+            AlarmManager mgr = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
+            assert mgr != null;
+            mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
+            System.exit(0);
 
-                return true;
-            }
+            return true;
         });
 
 
         CheckBoxPreference stayLogged = preferenceScreen.findPreference("keepLoggedIn");
         stayLogged.setChecked(sharedPreferences.getBoolean("Keep_Login", false));
-        stayLogged.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                editor.putBoolean("Keep_Login", (Boolean) newValue);
-                editor.commit();
-                return true;
-            }
+        stayLogged.setOnPreferenceChangeListener((preference12, newValue) -> {
+            editor.putBoolean("Keep_Login", (Boolean) newValue);
+            editor.commit();
+            return true;
         });
 
         EditTextPreference signature = preferenceScreen.findPreference("signature");

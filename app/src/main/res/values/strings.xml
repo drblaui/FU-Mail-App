@@ -49,7 +49,7 @@
 	<string name="logout">Logout</string>
 	<string name="logout_summary">Log yourself out</string>
 	<string name="signature">Signature</string>
-	<string name="default_signature"><![CDATA[-- <br> This message was sent by the <a href="https://github.com/drblaui/Fu-Mail-App">FU-Mail-App E-Mail Client</a>]]></string>
+	<string name="default_signature"><![CDATA[——— <br> This message was sent by the <a href="https://github.com/drblaui/Fu-Mail-App">FU-Mail-App E-Mail Client</a>]]></string>
 
 	<!-- Credits -->
 	<string name="credits" translatable="false">Credits</string>
@@ -62,6 +62,9 @@
 	<string name="tap_to_view">Tap to view</string>
 	<string name="url_icons" translatable="false">https://material.io/resources/icons/</string>
 	<string name="icons" translatable="false">Icons</string>
+	<string name="special_thanks">Special Thanks</string>
+	<string name="fu_planner">Sebastian Seedorf and Joshua for letting me use some of their code snippets from the FU Planner</string>
+	<string name="url_fuplanner" translatable="false">https://git.imp.fu-berlin.de/seedorf96/fuplanner</string>
 
 	<!-- Write Mail -->
 	<string name="placeholder_receiver">Receiver(s)</string>
@@ -79,5 +82,16 @@
 	<string name="error_subject">Subject can\'t be empty</string>
 	<string name="error_body">E-Mail Content can\'t be empty without attachment</string>
 	<string name="invalid_file">Invalid file. Try selecting it through \"SDCARD\" or your Internal Storage </string>
+
+	<!-- Fragments -->
+	<string name="inbox_fragment">Inbox is empty</string>
+	<string name="sent_fragment">No sent emails</string>
+	<string name="trash_fragment">Trash is Empty</string>
+	<string name="drafts_fragment">No drafts</string>
+	<string name="spam_fragment">Spam is empty</string>
+	<string name="unread_fragment">No unread mails</string>
+
+	<!-- Notifications -->
+	<string name="markRead">Mark as Read</string>
 
 </resources>

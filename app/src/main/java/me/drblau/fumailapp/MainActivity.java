@@ -9,10 +9,10 @@
 package me.drblau.fumailapp;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.MailTo;
 import android.net.Uri;
 import android.os.Bundle;
@@ -31,6 +31,10 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.work.Data;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
@@ -45,8 +49,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SignatureException;
 import java.security.UnrecoverableEntryException;
-import java.security.cert.CertificateException;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -55,8 +59,8 @@ import javax.crypto.NoSuchPaddingException;
 import me.drblau.fumailapp.ui.create.MailCreatorActivity;
 import me.drblau.fumailapp.ui.login.LoginDialogFragment;
 import me.drblau.fumailapp.ui.settings.SettingsActivity;
-import me.drblau.fumailapp.util.mail.MailFetcher;
-import me.drblau.fumailapp.util.passwort_handling.Decrypt;
+import me.drblau.fumailapp.util.common.Settings;
+import me.drblau.fumailapp.util.notifications.NotificationWorker;
 import me.drblau.fumailapp.util.passwort_handling.Encrypt;
 
 //CAREFUL, VERY XXX(problematic or misguiding code) HERE DUE TO SPAGHETTI FALLING OUT OF MY POCKET
@@ -64,25 +68,14 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
     //Helpers
     private AppBarConfiguration mAppBarConfiguration;
     private Encrypt encryptor;
-    private byte[] iv;
 
     //Login
     private View view;
     private static final String ALIAS = "drblau.Keystore";
     private boolean isLoggedIn = false;
 
-    //SharedPreferences
-    private static final String PREFS_NAME = "loginData";
-    private static final String PREFS_MAIL = "Email";
-    private static final String mailDefault = "john.doe@fu-berlin.de";
-    private static final String PREFS_PASSWORD = "Password";
-    private static final String PREFS_USERNAME = "Username";
-    private static final String usernameDefault = "FU Berlin Mail App User";
-    private static final String PREFS_STAY_LOGGED_IN = "Keep_Login";
-    private static final String PREFS_IV = "IV";
 
-    private SharedPreferences settings;
-
+    private Settings settings;
 
     public void login(View view) {
         //Overlay Login Dialog over current view
@@ -94,12 +87,11 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        settings = new Settings(this);
         encryptor = new Encrypt();
 
         //If User saved his Login Data
-        settings = this.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        if(settings.getString(PREFS_MAIL, null) != null) {
+        if(settings.getMail() != null) {
             isLoggedIn = true;
         }
 
@@ -109,14 +101,27 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
             checkDeepLink();
             setContentView(R.layout.activity_main);
 
+            Data inputData = new Data.Builder()
+                    .putString("mail", settings.getMail())
+                    .putString("password", settings.getPassword())
+                    .putByteArray("iv", settings.getIv())
+                    .build();
+            PeriodicWorkRequest fetchRequest = new PeriodicWorkRequest.Builder(NotificationWorker.class, 15, TimeUnit.MINUTES)
+                    .setInputData(inputData)
+                    .build();
+
+            WorkManager
+                    .getInstance(this)
+                    .enqueueUniquePeriodicWork(
+                            "FetchUserMail",
+                            ExistingPeriodicWorkPolicy.KEEP,
+                            fetchRequest
+                    );
             //Allow writing mails
             FloatingActionButton fab = findViewById(R.id.write_mail);
-            fab.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent write = new Intent(getApplicationContext(), MailCreatorActivity.class);
-                    startActivity(write);
-                }
+            fab.setOnClickListener(view -> {
+                Intent write = new Intent(getApplicationContext(), MailCreatorActivity.class);
+                startActivity(write);
             });
 
             // Passing each menu ID as a set of Ids because each
@@ -128,8 +133,8 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
             View header = navView.getHeaderView(0);
 
             //Change Header Text accordingly
-            String username = settings.getString(PREFS_USERNAME, usernameDefault);
-            String email = settings.getString(PREFS_MAIL, mailDefault);
+            String username = settings.getUsername();
+            String email = settings.getMail();
             TextView navUsername = header.findViewById(R.id.name);
             navUsername.setText(username);
             TextView eMail =  header.findViewById(R.id.email);
@@ -157,30 +162,24 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
 
         //Settings is a clickable ConstraintLayout, so it can float on the bottom
         View navSettings = findViewById(R.id.nav_settings);
-        navSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Show settings
-                Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
-                startActivity(intent);
-            }
+        navSettings.setOnClickListener(v -> {
+            //Show settings
+            Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+            startActivity(intent);
         });
-        String email = settings.getString(PREFS_MAIL, mailDefault);
-        String pass = settings.getString(PREFS_PASSWORD, "password");
-        if(settings.getString(PREFS_IV, null) != null) {
-            iv = Base64.decode(settings.getString(PREFS_IV, null), Base64.DEFAULT);
-        }
+    }
 
-        //TODO
-        //Ignore for now
-        MailFetcher fetcher = null;
-        try {
-            fetcher = new MailFetcher(email, decrypt(pass), "INBOX");
-            //fetcher.execute();
-        } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException | IOException e) {
-            e.printStackTrace();
+    private boolean serviceRunning(Class<?> serviceClass){
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        assert manager != null;
+        for(ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if(serviceClass.getName().equals(service.service.getClassName())) {
+                Log.i("Service Status", "Running");
+                return true;
+            }
         }
-
+        Log.i("Service Status", "Not Running");
+        return false;
     }
 
     @Override
@@ -214,14 +213,11 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
         //TODO: Well, this
         boolean keepLogin = check.isChecked();
 
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putString(PREFS_MAIL, email);
-        editor.putString(PREFS_PASSWORD, encPass);
-        editor.putString(PREFS_USERNAME, name);
-        editor.putBoolean(PREFS_STAY_LOGGED_IN, keepLogin);
-        editor.putString(PREFS_IV, ivString);
-        editor.apply();
-        editor.commit();
+        settings.update(Settings.PREFS_MAIL, email);
+        settings.update(Settings.PREFS_USERNAME, name);
+        settings.update(Settings.PREFS_PASSWORD, encPass);
+        settings.update(Settings.PREFS_IV, ivString);
+        settings.update(Settings.PREFS_STAY_LOGGED_IN, keepLogin);
 
         //Restart Application, so it knows we are logged in
         finish();
@@ -260,6 +256,7 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
             Uri data = getIntent().getData();
             String scheme = data.getScheme();
             //Be sure we only handle mailto
+            assert scheme != null;
             if(scheme.equals("mailto")) {
                 MailTo mail = MailTo.parse(data.toString());
                 String receiver = mail.getTo();
@@ -286,38 +283,33 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
     @Override
     protected void onDestroy() {
         /*
-        * Files are attempted to be deleted at 3 different points.
-        * Whenever the User closes the app completely (cleanup reasons)
-        * When the User closes the MailCreator (TODO: Workaround for draft)
-        * When the User has send the message (obvious reasons)
-        * */
+         * Files are attempted to be deleted at 3 different points.
+         * Whenever the User closes the app completely (cleanup reasons)
+         * When the User closes the MailCreator (TODO: Workaround for draft)
+         * When the User has send the message (obvious reasons)
+         * */
         File[] files = getFilesDir().listFiles();
-        if(files != null) {
-            for(File file: files) {
+        if (files != null) {
+            for (File file : files) {
                 file.delete();
             }
         }
         //Clear Preferences if User does not wish to be logged in
         //TODO: Does not (always) work
-        if(!settings.getBoolean(PREFS_STAY_LOGGED_IN, false)) {
-            SharedPreferences.Editor editor = settings.edit();
-            editor.clear();
-            editor.apply();
+        if (!settings.getLoggedIn()) {
+            settings.delete();
         }
+        /*Intent broadcastIntent = new Intent();
+        broadcastIntent.setAction("restartservice");
+        broadcastIntent.setClass(getBaseContext(), Restarter.class);
+        this.sendBroadcast(broadcastIntent);*/
         super.onDestroy();
-
+        //startService(new Intent(this, NotificationService.class));
     }
 
-    public String decrypt(String text) throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
-        Decrypt decryptor = new Decrypt();
-
-        try {
-            byte[] txt = Base64.decode(text, Base64.DEFAULT);
-            return decryptor.decryptData(ALIAS, txt, iv);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "";
+    @Override
+    protected void onStop() {
+        super.onStop();
+        //startService(new Intent(getBaseContext(), NotificationService.class));
     }
 }

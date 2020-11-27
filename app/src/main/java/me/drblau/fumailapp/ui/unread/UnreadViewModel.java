@@ -10,7 +10,7 @@ public class UnreadViewModel extends ViewModel {
 
     public UnreadViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is unread fragment");
+        mText.setValue("");
     }
 
     public LiveData<String> getText() {
