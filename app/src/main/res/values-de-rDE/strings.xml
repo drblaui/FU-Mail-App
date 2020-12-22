@@ -59,4 +59,8 @@
 	<string name="special_thanks">Besonderes Dankeschön</string>
 	<string name="fu_planner">Sebastian Seedorf und Joshua dafür, dass ich Code Snippets von ihrer FU-Planner App benutzen durfte</string>
 	<string name="markRead">Als gelesen markieren</string>
+	<string name="from"><b>Von: </b>%s</string>
+	<string name="to"><b>An: </b>%s</string>
+	<string name="subject"><b>Betreff: </b>%s</string>
+	<string name="date"><b>Datum: </b>%s</string>
 </resources>

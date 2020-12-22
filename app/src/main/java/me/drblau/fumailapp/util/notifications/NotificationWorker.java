@@ -12,9 +12,6 @@ import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import me.drblau.fumailapp.R;
 import me.drblau.fumailapp.ui.MailDetail;
 import me.drblau.fumailapp.util.common.UNID;

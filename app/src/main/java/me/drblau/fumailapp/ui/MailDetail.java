@@ -1,8 +1,12 @@
 package me.drblau.fumailapp.ui;
 
 import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.SpannedString;
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.widget.TextView;
 
@@ -10,6 +14,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 import me.drblau.fumailapp.R;
 import me.drblau.fumailapp.util.common.Settings;
@@ -34,13 +45,20 @@ public class MailDetail extends AppCompatActivity {
         setContentView(R.layout.activity_mail_detail);
 
         TextView sender = findViewById(R.id.sender);
-        sender.setText(message.getFromToString());
+        sender.setText(getText(this, R.string.from, message.getFromToString()));
 
         TextView receiver = findViewById(R.id.receiver);
-        receiver.setText(settings.getMail());
+        receiver.setText(getText(this, R.string.to, settings.getMail()));
 
         TextView subject = findViewById(R.id.subject);
-        subject.setText(message.getSubject());
+        subject.setText(getText(this, R.string.subject, message.getSubject()));
+
+        TextView date = findViewById(R.id.date);
+        Date messageDate = message.getSentDate();
+        SimpleDateFormat formatter = new SimpleDateFormat("EE, MMMM dd, yyyy HH:mm", getResources().getConfiguration().locale);
+        String dateStr = formatter.format(messageDate);
+
+        date.setText(getText(this, R.string.date, dateStr));
 
         TextView content = findViewById(R.id.content);
         try {
@@ -67,5 +85,18 @@ public class MailDetail extends AppCompatActivity {
         onBackPressed();
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public static CharSequence getText(Context context, int id, Object... args) {
+        for(int i = 0; i < args.length; ++i)
+            args[i] = args[i] instanceof String? TextUtils.htmlEncode((String)args[i]) : args[i];
+        return removeTrailingLineFeed(Html.fromHtml(String.format(Html.toHtml(new SpannedString(context.getText(id))), args)));
+    }
+
+    private static CharSequence removeTrailingLineFeed(@NonNull CharSequence text) {
+        while (text.charAt(text.length() - 1) == '\n' && text.length() > 0) {
+            text = text.subSequence(0, text.length() - 1);
+        }
+        return text;
     }
 }

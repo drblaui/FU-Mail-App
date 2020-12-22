@@ -94,4 +94,10 @@
 	<!-- Notifications -->
 	<string name="markRead">Mark as Read</string>
 
+	<!-- Mail Content -->
+	<string name="from"><b>From: </b>%s</string>
+	<string name="to"><b>To: </b>%s</string>
+	<string name="subject"><b>Subject: </b>%s</string>
+	<string name="date"><b>Date: </b>%s</string>
+
 </resources>
