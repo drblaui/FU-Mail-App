@@ -7,15 +7,17 @@ import android.content.Context;
 import android.content.Intent;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import me.drblau.fumailapp.R;
 import me.drblau.fumailapp.ui.MailDetail;
-import me.drblau.fumailapp.util.common.Settings;
+import me.drblau.fumailapp.util.common.UNID;
 import me.drblau.fumailapp.util.mail.MailHandlerIMAP;
 import me.drblau.fumailapp.util.mail.MessageSkeleton;
 
@@ -25,11 +27,10 @@ public class NotificationWorker extends Worker {
     public static final String NOTIFICATION_CHANNEL_ID = "10001" ;
     private final static String default_notification_channel_id = "default" ;
     private final Context context;
-    private int counter;
+
     public NotificationWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);
         this.context = context;
-        counter = 0;
     }
 
 
@@ -54,7 +55,7 @@ public class NotificationWorker extends Worker {
     }
 
     private void createNotification (String sender, String subject, String content, String folder, int id) {
-        int notifyId = (int) System.currentTimeMillis();
+        int notifyId = (int) System.currentTimeMillis() + UNID.generateID();
         Intent openIntent = new Intent(getApplicationContext(), MailDetail.class)
             .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK)
             .putExtra("mailId", id)
